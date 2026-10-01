@@ -1,0 +1,63 @@
+[
+  {
+    "freq": "92.3",
+    "name": "FMR Manila",
+    "note": "Banana Krew (#9)",
+    "links": [
+      {
+        "label": "Facebook",
+        "url": "https://www.facebook.com/share/p/1ZVfkLuxPY/?mibextid=wwXIfr",
+        "solid": true
+      },
+      {
+        "label": "Instagram",
+        "url": "https://www.instagram.com/p/Dd3eBO-Clcw/?stkn=MWxjdTBvaHJ1bG85dw%3D%3D",
+        "solid": false
+      }
+    ]
+  },
+  {
+    "freq": "93.9",
+    "name": "iFM Manila",
+    "links": [
+      {
+        "label": "Facebook",
+        "url": "https://www.facebook.com/share/p/1Ep72ouNSP/?mibextid=wwXIfr",
+        "solid": true
+      }
+    ]
+  },
+  {
+    "freq": "93.1",
+    "name": "FMR Cebu",
+    "links": [
+      {
+        "label": "Facebook",
+        "url": "https://www.facebook.com/share/p/1DnH3DoHSR/?mibextid=wwXIfr",
+        "solid": true
+      }
+    ]
+  },
+  {
+    "freq": "104.7",
+    "name": "Dream Radio",
+    "links": [
+      {
+        "label": "Facebook",
+        "url": "https://www.facebook.com/share/1Hou38pJSD/?mibextid=wwXIfr",
+        "solid": true
+      }
+    ]
+  },
+  {
+    "freq": "97.1",
+    "name": "Barangay LS",
+    "links": [
+      {
+        "label": "Facebook",
+        "url": "https://www.facebook.com/story.php?story_fbid=1485191250299436&id=100064257244862",
+        "solid": true
+      }
+    ]
+  }
+]

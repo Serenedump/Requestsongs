@@ -89,6 +89,14 @@ h2{font-family:var(--serif);font-weight:700;text-transform:uppercase;letter-spac
 .note{font-size:.8rem;color:var(--muted);margin:28px 0 20px}
 footer.bar{background:#000;color:#fff;text-align:center;padding:16px 12px calc(16px + env(safe-area-inset-bottom,0px));font-size:.8rem;letter-spacing:.3em;text-transform:uppercase}
 footer.bar small{display:block;letter-spacing:.35em;font-size:.65rem;opacity:.8;margin-top:4px}
+.ed{position:fixed;inset:0;z-index:99;background:var(--bg);overflow:auto;padding:calc(14px + env(safe-area-inset-top,0px)) 14px calc(24px + env(safe-area-inset-bottom,0px))}
+.ed h3{font-family:var(--serif);margin:4px 0 12px;font-size:1.25rem}
+.ed input{width:100%;font:inherit;font-size:16px;padding:10px;border:1px solid #000;background:#fff;color:#000;margin:0 0 8px;border-radius:0}
+.ed .row{background:#fff;border:1px solid #000;padding:12px;margin-bottom:12px}
+.ed label{display:block;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:0 0 3px}
+.ed .bar{display:flex;gap:8px;margin-top:4px}.ed .bar .btn{flex:1;min-width:0}
+.ed .msg{font-size:.88rem;margin:10px 0;min-height:1.3em}
+.ed details{margin:0 0 14px;font-size:.85rem}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 @media (max-width:340px){.freq{width:88px}.freq b{font-size:1.6rem}}
 </style>
@@ -121,57 +129,7 @@ footer.bar small{display:block;letter-spacing:.35em;font-size:.65rem;opacity:.8;
   <h2>📻 Radio Posts</h2>
   <p class="tip">Facebook won't open? Open this page in Safari or Chrome instead of inside X, then tap again.</p>
 
-  <article class="station">
-    <div class="freq"><b>92.3</b><span>FM</span></div>
-    <div class="info">
-      <h3>FMR Manila</h3>
-      <p>Banana Krew (#9)</p>
-      <div class="links">
-        <a class="btn solid" href="https://www.facebook.com/share/p/1ZVfkLuxPY/?mibextid=wwXIfr">Facebook</a>
-        <a class="btn" href="https://www.instagram.com/p/Dd3eBO-Clcw/?stkn=MWxjdTBvaHJ1bG85dw%3D%3D">Instagram</a>
-      </div>
-    </div>
-  </article>
-
-  <article class="station">
-    <div class="freq"><b>93.9</b><span>FM</span></div>
-    <div class="info">
-      <h3>iFM Manila</h3>
-      <div class="links">
-        <a class="btn solid" href="https://www.facebook.com/share/p/1Ep72ouNSP/?mibextid=wwXIfr">Facebook</a>
-      </div>
-    </div>
-  </article>
-
-  <article class="station">
-    <div class="freq"><b>93.1</b><span>FM</span></div>
-    <div class="info">
-      <h3>FMR Cebu</h3>
-      <div class="links">
-        <a class="btn solid" href="https://www.facebook.com/share/p/1DnH3DoHSR/?mibextid=wwXIfr">Facebook</a>
-      </div>
-    </div>
-  </article>
-
-  <article class="station">
-    <div class="freq"><b>104.7</b><span>FM</span></div>
-    <div class="info">
-      <h3>Dream Radio</h3>
-      <div class="links">
-        <a class="btn solid" href="https://www.facebook.com/share/1Hou38pJSD/?mibextid=wwXIfr">Facebook</a>
-      </div>
-    </div>
-  </article>
-
-  <article class="station">
-    <div class="freq"><b>97.1</b><span>FM</span></div>
-    <div class="info">
-      <h3>Barangay LS</h3>
-      <div class="links">
-        <a class="btn solid" href="https://www.facebook.com/story.php?story_fbid=1485191250299436&amp;id=100064257244862">Facebook</a>
-      </div>
-    </div>
-  </article>
+  <div id="stations"></div>
 
   <h2>🗳️ Vote or Request</h2>
   <div class="vote">
@@ -230,17 +188,191 @@ footer.bar small{display:block;letter-spacing:.35em;font-size:.65rem;opacity:.8;
   b.addEventListener('click',function(){
     copyText(n,function(){flash(b,'Copied','Copy number')},function(){flash(b,'Copy failed','Copy number')});
   });
+  /* stations: built from links.json (edit that file to change links; defaults below are a fallback) */
+  var DEFAULT_STATIONS=[{"freq": "92.3", "name": "FMR Manila", "note": "Banana Krew (#9)", "links": [{"label": "Facebook", "url": "https://www.facebook.com/share/p/1ZVfkLuxPY/?mibextid=wwXIfr", "solid": true}, {"label": "Instagram", "url": "https://www.instagram.com/p/Dd3eBO-Clcw/?stkn=MWxjdTBvaHJ1bG85dw%3D%3D", "solid": false}]}, {"freq": "93.9", "name": "iFM Manila", "links": [{"label": "Facebook", "url": "https://www.facebook.com/share/p/1Ep72ouNSP/?mibextid=wwXIfr", "solid": true}]}, {"freq": "93.1", "name": "FMR Cebu", "links": [{"label": "Facebook", "url": "https://www.facebook.com/share/p/1DnH3DoHSR/?mibextid=wwXIfr", "solid": true}]}, {"freq": "104.7", "name": "Dream Radio", "links": [{"label": "Facebook", "url": "https://www.facebook.com/share/1Hou38pJSD/?mibextid=wwXIfr", "solid": true}]}, {"freq": "97.1", "name": "Barangay LS", "links": [{"label": "Facebook", "url": "https://www.facebook.com/story.php?story_fbid=1485191250299436&id=100064257244862", "solid": true}]}];
+  var box=document.getElementById('stations'),current=DEFAULT_STATIONS;
+  function render(list){
+    current=list;box.textContent='';
+    list.forEach(function(st){
+      var art=document.createElement('article');art.className='station';
+      var f=document.createElement('div');f.className='freq';
+      var fb=document.createElement('b');fb.textContent=st.freq;
+      var fs=document.createElement('span');fs.textContent='FM';
+      f.appendChild(fb);f.appendChild(fs);
+      var info=document.createElement('div');info.className='info';
+      var h=document.createElement('h3');h.textContent=st.name;info.appendChild(h);
+      if(st.note){var p=document.createElement('p');p.textContent=st.note;info.appendChild(p)}
+      var ls=document.createElement('div');ls.className='links';
+      (st.links||[]).forEach(function(l){
+        if(!/^https?:\/\//i.test(l.url))return;
+        var a=document.createElement('a');
+        a.className='btn'+(l.solid?' solid':'');a.href=l.url;a.textContent=l.label;
+        ls.appendChild(a);
+      });
+      info.appendChild(ls);art.appendChild(f);art.appendChild(info);box.appendChild(art);
+    });
+  }
+  render(DEFAULT_STATIONS);
+  /* ---- Firebase: fill in these two values (they are public, safe to keep in the page) ---- */
+  var FB={apiKey:'AIzaSyDI6y-v4L8Fe5eFiotTK0Xc_ikhWq1mITY',projectId:'requestsongs-727b8'};
+
+  /* load latest links: Firestore -> links.json -> built-in defaults */
+  function loadLinks(){
+    var first=(FB.apiKey&&FB.projectId)
+      ? fetch('https://firestore.googleapis.com/v1/projects/'+FB.projectId+'/databases/(default)/documents/config/links?key='+FB.apiKey,{cache:'no-store'})
+          .then(function(r){if(!r.ok)throw 0;return r.json()})
+          .then(function(d){return JSON.parse(d.fields.json.stringValue)})
+      : Promise.reject();
+    first.catch(function(){
+      return fetch('links.json?v='+Date.now(),{cache:'no-store'}).then(function(r){if(!r.ok)throw 0;return r.json()});
+    }).then(function(d){if(Array.isArray(d)&&d.length)render(d)}).catch(function(){});
+  }
+  loadLinks();
+
+  /* ---- Admin editor: open the page with ?edit at the end of the address ---- */
+  function el(tag,cls,txt){var e=document.createElement(tag);if(cls)e.className=cls;if(txt)e.textContent=txt;return e}
+
+  var fbReady=null;
+  function fbInit(){
+    if(!fbReady)fbReady=['app','auth','firestore'].reduce(function(p,n){
+      return p.then(function(){return new Promise(function(ok,no){
+        var sc=document.createElement('script');
+        sc.src='https://www.gstatic.com/firebasejs/10.12.2/firebase-'+n+'-compat.js';
+        sc.onload=ok;sc.onerror=no;document.head.appendChild(sc);
+      })});
+    },Promise.resolve()).then(function(){
+      if(!firebase.apps.length)firebase.initializeApp({apiKey:FB.apiKey,authDomain:FB.projectId+'.firebaseapp.com',projectId:FB.projectId});
+      return firebase;
+    });
+    return fbReady;
+  }
+
+  function closeBtn(ov){
+    var b=el('button','btn','Close');b.type='button';
+    b.addEventListener('click',function(){document.body.removeChild(ov)});
+    return b;
+  }
+
+  function openEditor(){
+    if(!FB.apiKey||!FB.projectId){alert('Firebase is not set up yet.');return}
+    var ov=el('div','ed');ov.appendChild(el('p','msg','Loading...'));document.body.appendChild(ov);
+    fbInit().then(function(fb){
+      var unsub=fb.auth().onAuthStateChanged(function(u){
+        unsub();
+        if(u)editorView(ov,u,fb);else loginView(ov,fb);
+      });
+    }).catch(function(){
+      ov.textContent='';ov.appendChild(el('p','msg','Could not load Firebase. Check your connection.'));
+      var bar=el('div','bar');bar.appendChild(closeBtn(ov));ov.appendChild(bar);
+    });
+  }
+
+  function loginView(ov,fb){
+    ov.textContent='';
+    ov.appendChild(el('h3','','Admin login'));
+    var em=el('input');em.type='email';em.placeholder='Email';em.autocomplete='username';em.autocapitalize='off';
+    var pw=el('input');pw.type='password';pw.placeholder='Password';pw.autocomplete='current-password';
+    var msg=el('p','msg'),bar=el('div','bar');
+    var go=el('button','btn solid','Log in');go.type='button';
+    function doLogin(){
+      msg.textContent='Logging in...';go.disabled=true;
+      fb.auth().signInWithEmailAndPassword(em.value.trim(),pw.value)
+        .then(function(c){editorView(ov,c.user,fb)})
+        .catch(function(){msg.textContent='Wrong email or password.';go.disabled=false});
+    }
+    go.addEventListener('click',doLogin);
+    pw.addEventListener('keydown',function(e){if(e.key==='Enter')doLogin()});
+    bar.appendChild(go);bar.appendChild(closeBtn(ov));
+    ov.appendChild(em);ov.appendChild(pw);ov.appendChild(msg);ov.appendChild(bar);
+  }
+
+  function editorView(ov,user,fb){
+    ov.textContent='';
+    var rows=el('div'),msg=el('p','msg');
+    ov.appendChild(el('h3','','Edit links'));
+    ov.appendChild(el('p','small','Signed in as '+(user.email||'')));
+    ov.appendChild(rows);
+
+    function field(row,key,label,val,mode){
+      row.appendChild(el('label','',label));
+      var i=el('input');i.value=val||'';i.dataset.k=key;if(mode)i.inputMode=mode;
+      i.autocapitalize='off';i.autocomplete='off';i.spellcheck=false;
+      row.appendChild(i);
+    }
+    function addRow(st){
+      var r=el('div','row'),fbk='',ig='',extra=[];
+      (st.links||[]).forEach(function(l){
+        if(l.label==='Facebook')fbk=l.url;else if(l.label==='Instagram')ig=l.url;else extra.push(l);
+      });
+      r._extra=extra;
+      field(r,'freq','Frequency (FM)',st.freq,'decimal');
+      field(r,'name','Station name',st.name);
+      field(r,'note','Note (optional)',st.note);
+      field(r,'fb','Facebook link',fbk,'url');
+      field(r,'ig','Instagram link (optional)',ig,'url');
+      var bar=el('div','bar');
+      [['\u2191',function(){if(r.previousElementSibling)rows.insertBefore(r,r.previousElementSibling)}],
+       ['\u2193',function(){if(r.nextElementSibling)rows.insertBefore(r.nextElementSibling,r)}],
+       ['Remove',function(){if(confirm('Remove this station?'))rows.removeChild(r)}]
+      ].forEach(function(x){
+        var b=el('button','btn',x[0]);b.type='button';b.addEventListener('click',x[1]);bar.appendChild(b);
+      });
+      r.appendChild(bar);rows.appendChild(r);
+    }
+    current.forEach(addRow);
+
+    function collect(){
+      var out=[],bad='';
+      Array.prototype.forEach.call(rows.children,function(r){
+        var v={};Array.prototype.forEach.call(r.querySelectorAll('input'),function(i){v[i.dataset.k]=i.value.trim()});
+        var links=[];
+        if(v.fb){if(!/^https?:\/\//i.test(v.fb))bad=v.name||v.freq;links.push({label:'Facebook',url:v.fb,solid:true})}
+        if(v.ig){if(!/^https?:\/\//i.test(v.ig))bad=v.name||v.freq;links.push({label:'Instagram',url:v.ig,solid:!links.length})}
+        links=links.concat(r._extra||[]);
+        var st={freq:v.freq,name:v.name};if(v.note)st.note=v.note;st.links=links;
+        if(v.freq||v.name)out.push(st);
+      });
+      return {list:out,bad:bad};
+    }
+
+    var bar1=el('div','bar'),bar2=el('div','bar');
+    var add=el('button','btn','+ Add station');add.type='button';
+    add.addEventListener('click',function(){addRow({freq:'',name:'',links:[]});rows.lastChild.scrollIntoView({block:'center'})});
+    var save=el('button','btn solid','Save');save.type='button';
+    var out=el('button','btn','Sign out');out.type='button';
+    out.addEventListener('click',function(){fb.auth().signOut().then(function(){loginView(ov,fb)})});
+    bar1.appendChild(add);bar1.appendChild(save);
+    bar2.appendChild(out);bar2.appendChild(closeBtn(ov));
+    ov.appendChild(msg);ov.appendChild(bar1);ov.appendChild(bar2);
+
+    save.addEventListener('click',function(){
+      var c=collect();
+      if(c.bad){msg.textContent='Links must start with https:// ('+c.bad+').';return}
+      if(!c.list.length){msg.textContent='Add at least one station.';return}
+      msg.textContent='Saving...';save.disabled=true;
+      fb.firestore().doc('config/links').set({json:JSON.stringify(c.list),updatedAt:new Date().toISOString()})
+        .then(function(){render(c.list);msg.textContent='Saved! Live for everyone now.'})
+        .catch(function(e){msg.textContent=(e&&e.code==='permission-denied')?'This account is not allowed to edit.':'Save failed. Try again.'})
+        .then(function(){save.disabled=false});
+    });
+  }
+
+  if(/[?&#]edit/.test(location.search+location.hash)){
+    var eb=el('button','btn solid','\u270F\uFE0F Edit links');eb.type='button';
+    eb.style.cssText='position:fixed;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:9;box-shadow:0 2px 10px rgba(0,0,0,.35)';
+    eb.addEventListener('click',openEditor);document.body.appendChild(eb);
+  }
+
   /* iOS: open Facebook links straight in the app; fall back to web if the app doesn't take over */
   var ios=/iP(hone|ad|od)/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
   if(ios){
-    document.querySelectorAll('a[href*="facebook.com"]').forEach(function(a){
-      a.addEventListener('click',function(e){
-        e.preventDefault();
-        var u=a.href,
-            t=setTimeout(function(){location.href=u},1200);
-        document.addEventListener('visibilitychange',function(){if(document.hidden)clearTimeout(t)},{once:true});
-        location.href='fb://facewebmodal/f?href='+encodeURIComponent(u);
-      });
+    box.addEventListener('click',function(e){
+      var a=e.target.closest&&e.target.closest('a[href*="facebook.com"]');
+      if(!a)return;
+      e.preventDefault();
+      var u=a.href,t=setTimeout(function(){location.href=u},1200);
+      document.addEventListener('visibilitychange',function(){if(document.hidden)clearTimeout(t)},{once:true});
+      location.href='fb://facewebmodal/f?href='+encodeURIComponent(u);
     });
   }
   window.addEventListener('pageshow',function(e){if(e.persisted){document.querySelectorAll('.btn').forEach(function(x){x.blur()})}});
