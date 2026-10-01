@@ -230,6 +230,19 @@ footer.bar small{display:block;letter-spacing:.35em;font-size:.65rem;opacity:.8;
   b.addEventListener('click',function(){
     copyText(n,function(){flash(b,'Copied','Copy number')},function(){flash(b,'Copy failed','Copy number')});
   });
+  /* iOS: open Facebook links straight in the app; fall back to web if the app doesn't take over */
+  var ios=/iP(hone|ad|od)/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+  if(ios){
+    document.querySelectorAll('a[href*="facebook.com"]').forEach(function(a){
+      a.addEventListener('click',function(e){
+        e.preventDefault();
+        var u=a.href,
+            t=setTimeout(function(){location.href=u},1200);
+        document.addEventListener('visibilitychange',function(){if(document.hidden)clearTimeout(t)},{once:true});
+        location.href='fb://facewebmodal/f?href='+encodeURIComponent(u);
+      });
+    });
+  }
   window.addEventListener('pageshow',function(e){if(e.persisted){document.querySelectorAll('.btn').forEach(function(x){x.blur()})}});
 })();
 </script>
