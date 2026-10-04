@@ -344,7 +344,8 @@ footer.bar small{display:block;letter-spacing:.35em;font-size:.65rem;opacity:.8;
     var key=st.freq+'|'+st.name,p=pend===key;
     g('gn').textContent=(isFresh(st)?'\uD83D\uDD25 NEW: ':'')+(st.freq?st.freq+' ':'')+st.name;
     g('gt').textContent=fmt(C[cur],st.song);
-    var sl=g('song');sl.value=st.song||song;sl.disabled=!!st.song;
+    var sl=g('song');if(st.song&&SONGS.indexOf(st.song)<0&&!Array.prototype.some.call(sl.options,function(o){return o.value===st.song})){var xo=document.createElement('option');xo.value=xo.textContent=st.song;sl.appendChild(xo)}
+    sl.value=st.song||song;sl.disabled=!!st.song;
     g('sgl').textContent=st.song?'Song requested by this station':'Song to comment today (changes per station)';
     g('gopen').classList.remove('hide');
     g('gyes').classList.toggle('hide',!p);g('gskip').classList.toggle('hide',!p);
@@ -631,7 +632,7 @@ footer.bar small{display:block;letter-spacing:.35em;font-size:.65rem;opacity:.8;
       var info=document.createElement('div');info.className='info';
       var h=document.createElement('h3');h.textContent=st.name;info.appendChild(h);
       if(st.note){var p=document.createElement('p');p.textContent=st.note;info.appendChild(p)}
-      if(isFresh(st)||st.song){var tg=document.createElement('p');tg.textContent=(isFresh(st)?'\uD83D\uDD25 New post  ':'')+(st.song?'\uD83C\uDFB5 '+st.song:'');tg.style.fontWeight='800';info.appendChild(tg)}
+      if(isFresh(st)||st.song){var tg=document.createElement('p');tg.textContent=(isFresh(st)?'\uD83D\uDD25 New post  ':'')+(st.song?'\uD83C\uDFB5 Song to comment: '+st.song:'');tg.style.fontWeight='800';info.appendChild(tg)}
       var ls=document.createElement('div');ls.className='links';
       var key=st.freq+'|'+st.name,cm=document.createElement('button');
       (st.links||[]).forEach(function(l){
@@ -759,10 +760,10 @@ footer.bar small{display:block;letter-spacing:.35em;font-size:.65rem;opacity:.8;
       field(r,'freq','Frequency (FM)',st.freq,'decimal');
       field(r,'name','Station name',st.name);
       field(r,'note','Note (optional)',st.note);
-      r.appendChild(el('label','','Song to request (optional)'));
-      var ss=el('select');ss.style.cssText='width:100%;min-height:44px';
-      [''].concat(SONGS).forEach(function(x){var o=el('option','',x||'(none, use default)');o.value=x;if(x===(st.song||''))o.selected=true;ss.appendChild(o)});
-      r.appendChild(ss);
+      r.appendChild(el('label','','Song to comment (optional, type any song or pick a suggestion)'));
+      var ss=el('input');ss.dataset.k='song';ss.value=st.song||'';ss.placeholder='e.g. Sinta';ss.setAttribute('list','songlist');
+      ss.autocomplete='off';ss.spellcheck=false;r.appendChild(ss);
+      if(!document.getElementById('songlist')){var dl=el('datalist');dl.id='songlist';SONGS.forEach(function(x){var o=el('option');o.value=x;dl.appendChild(o)});document.body.appendChild(dl)}
       var fl=el('label',''),ck=el('input');ck.type='checkbox';ck.dataset.k='fresh';ck.checked=isFresh(st);ck.style.width='auto';
       fl.appendChild(ck);fl.appendChild(document.createTextNode(' New post (priority for 24 hours)'));r.appendChild(fl);r._fresh=st.fresh;
       field(r,'fb','Facebook link',fbk,'url');
@@ -805,7 +806,7 @@ footer.bar small{display:block;letter-spacing:.35em;font-size:.65rem;opacity:.8;
           links.push({label:lb||'Link',url:u});
         });
         var st={freq:v.freq,name:v.name};if(v.note)st.note=v.note;st.links=links;
-        var sg=r.querySelector('select');if(sg&&sg.value)st.song=sg.value;
+        if(v.song)st.song=v.song.slice(0,60);
         if(v.fresh)st.fresh=isFresh({fresh:r._fresh})?r._fresh:new Date().toISOString();
         if(v.freq||v.name)out.push(st);
       });
