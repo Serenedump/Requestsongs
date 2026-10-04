@@ -99,6 +99,43 @@ footer.bar small{display:block;letter-spacing:.35em;font-size:.65rem;opacity:.8;
 .ed details{margin:0 0 14px;font-size:.85rem}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 @media (max-width:340px){.freq{width:88px}.freq b{font-size:1.6rem}}
+.prog{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid #000;padding:12px 14px;margin:0 0 16px}
+.prog b{font-family:var(--serif);font-size:1.6rem;line-height:1}
+.prog div{flex:1;min-width:0}
+.prog small{display:block;font-size:.8rem;color:var(--muted)}
+.prog i{display:block;height:6px;background:#ddd;margin-top:6px}
+.prog i u{display:block;height:100%;width:0;background:#000;transition:width .25s}
+.btn.cm{grid-column:1/-1}
+.btn.cm.on{background:#000;color:#fff}
+.lb{background:var(--card);border:1px solid #000;padding:12px 14px;margin:0 0 16px}
+.lb .nm{display:flex;gap:8px;margin-bottom:10px}
+.lb input{flex:1;min-width:0;min-height:44px;padding:8px 10px;border:1px solid #000;font:inherit;background:#fff;color:#000}
+.lb .nm .btn{padding:10px 16px}
+.lb h3{margin:0 0 6px;font-size:.95rem}
+.lb ol{list-style:none;margin:0;padding:0}
+.lb li{display:flex;gap:10px;padding:6px 0;border-top:1px solid #ddd}
+.lb li span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lb li.me{font-weight:800}
+.lb .small{margin:6px 0 0;font-size:.8rem;color:var(--muted)}
+.cnt{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.cnt div{flex:1;min-width:0}
+.cnt small{display:block;font-size:.8rem;color:var(--muted)}
+.cnt b{font-family:var(--serif);font-size:2rem;line-height:1.1}
+.cnt .btn{padding:10px 16px}
+.hide{display:none!important}
+.go{background:#000;color:#fff;padding:14px;margin:0 0 16px}
+.go small{display:block;font-size:.8rem;opacity:.75}
+.go b{display:block;font-family:var(--serif);font-size:1.5rem;line-height:1.15;margin:2px 0 8px}
+.go p{margin:0 0 10px;font-size:1.05rem}
+.go .btn{background:#fff;color:#000;border-color:#fff}
+.tips{background:var(--card);border:1px solid #000;padding:12px 14px;margin:0 0 16px}
+.tips summary{font-weight:800;cursor:pointer;min-height:32px}
+.tips li{margin:6px 0}
+.go label{display:block;font-size:.8rem;opacity:.75;margin-bottom:4px}
+.go select{width:100%;min-height:44px;padding:8px 10px;margin-bottom:10px;border:0;font:inherit;background:#fff;color:#000}
+.ntc{background:#fff;border:2px solid #000;padding:12px 14px;margin:0 0 16px;font-weight:700;white-space:pre-wrap}
+.lb .nm .btn{flex:1}
+.ed label{display:block;margin-top:8px}
 </style>
 </head>
 <body>
@@ -116,6 +153,37 @@ footer.bar small{display:block;letter-spacing:.35em;font-size:.65rem;opacity:.8;
     <span>Tap a station below, open its post, and leave a comment.</span>
   </div>
 
+  <div class="ntc hide" id="notice"></div>
+
+  <div class="go" id="go">
+    <small>Quick mode: no need to hunt for stations</small>
+    <b id="gn">Loading...</b>
+    <label id="sgl" for="song">Song to comment today (changes per station)</label>
+    <select id="song"></select>
+    <p id="gt"></p>
+    <div class="links">
+      <button class="btn" id="gopen" type="button">Copy &amp; open post</button>
+      <button class="btn hide" id="gyes" type="button">&#10003; Done, next</button>
+      <button class="btn hide" id="gskip" type="button">Skip</button>
+    </div>
+  </div>
+
+  <div class="prog" aria-live="polite">
+    <b id="pn">0/0</b>
+    <div><small id="pt">Posts commented on today</small><small id="stk"></small><i><u id="pb"></u></i>
+    <small><a href="#" id="pr" style="color:inherit">Reset today</a></small>
+    <button class="btn" id="shr" type="button" style="margin-top:8px">Share progress</button></div>
+  </div>
+
+  <div class="lb">
+    <div class="nm"><input id="nm" maxlength="24" placeholder="Your name" autocomplete="nickname"><button class="btn solid" id="nmsave" type="button">Save</button></div>
+    <div class="cnt"><div><small>Your comments today (any Will Ashley post)</small><b id="mine">0</b></div><button class="btn" id="minus" type="button">&minus;1</button><button class="btn solid" id="plus" type="button">+1 Comment</button></div>
+    <div class="nm"><button class="btn solid" id="tbd" type="button">Today</button><button class="btn" id="tbw" type="button">This week</button></div>
+    <h3 id="lbt">Live comments today</h3>
+    <ol id="lbl"></ol>
+    <p class="small" id="lbm">Names and counts are self-reported and update every few seconds.</p>
+  </div>
+
   <h2>💬 Comment Ideas</h2>
   <div class="pick">
     <p class="txt" id="ptxt" aria-live="polite">SINTA BY WILL ASHLEY 🖤🤍</p>
@@ -125,6 +193,18 @@ footer.bar small{display:block;letter-spacing:.35em;font-size:.65rem;opacity:.8;
     </div>
     <p class="small" id="pmsg">Copy it, then paste it as your comment on the post.</p>
   </div>
+
+  <details class="tips">
+    <summary>🏆 How to get your comment to the top</summary>
+    <ol>
+      <li><b>Be early.</b> Comment as soon as a post goes up, so it has more time to collect reactions and replies.</li>
+      <li><b>Vary it.</b> Don't post the exact same comment as everyone else. Change a word or an emoji. Facebook can hide repeated comments as spam.</li>
+      <li><b>Short, clear, positive.</b> Easier to like and reply to.</li>
+      <li><b>Like and reply</b> to fellow Loungers. A comment with a conversation under it tends to rise.</li>
+      <li><b>Avoid:</b> links, very long comments, and many comments in a row on one post.</li>
+    </ol>
+    <p class="small">No guarantee. Facebook decides "Most relevant", and each person can see a different order.</p>
+  </details>
 
   <h2>📻 Radio Posts</h2>
   <p class="tip">Facebook won't open? Open this page in Safari or Chrome instead of inside X, then tap again.</p>
@@ -158,19 +238,39 @@ footer.bar small{display:block;letter-spacing:.35em;font-size:.65rem;opacity:.8;
     setTimeout(function(){btn.textContent=orig},1700);
   }
 
+  /* Will Ashley songs: pick the one the station is asking for */
+  var SONGS=['Paborito','AAKH!','Harana Para Sa\u2019yo','Dito Ka Na Lang','Sa Piling Mo','Sinta','Matutulog','Kasalanan, Pinagsisihan'],song='Sinta';
+  try{var sv=localStorage.getItem('sinta-song');if(SONGS.indexOf(sv)>-1)song=sv}catch(e){}
+  function fmt(x,sg){sg=sg||song;return x.replace(/SINTA/g,sg.toUpperCase()).replace(/Sinta/g,sg)}
+  function isFresh(st){var ts=st&&st.fresh?Date.parse(st.fresh):0;return !!ts&&Date.now()-ts<864e5}
+  var noticeText='';
+  function setNotice(x){noticeText=x||'';var n=document.getElementById('notice');n.textContent=noticeText;n.classList.toggle('hide',!noticeText)}
+  function ds(d){return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()}
+  function ystr(){var y=new Date();y.setDate(y.getDate()-1);return ds(y)}
+  function streakObj(){try{return JSON.parse(localStorage.getItem('sinta-streak')||'{}')||{}}catch(e){return {}}}
+  function touchStreak(){
+    if(getCnt()<1)return;
+    var o=streakObj();if(o.last===today())return;
+    o={last:today(),n:(o.last===ystr()?(o.n|0)+1:1)};
+    try{localStorage.setItem('sinta-streak',JSON.stringify(o))}catch(e){}
+  }
+  function streak(){var o=streakObj();return(o.last===today()||o.last===ystr())?(o.n|0):0}
   /* comment ideas: Copy copies exactly what is shown */
   var C=[
     'SINTA BY WILL ASHLEY 🖤🤍',
     'Sinta by Will Ashley, please play! 🖤',
     'Request: Sinta by Will Ashley 🤍',
-    'Sinta by Will Ashley na po! 🖤🤍',
-    'Support Sinta by Will Ashley 🎧'
+    'Sinta by Will Ashley, now please! 🖤🤍',
+    'Support Sinta by Will Ashley 🎧',
+    'Sinta by Will Ashley, so good! 🖤🤍',
+    'One more request: Sinta by Will Ashley 🎧',
+    'Sinta by Will Ashley please! 🤍'
   ];
   var t=document.getElementById('ptxt'),m=document.getElementById('pmsg'),
       cb=document.getElementById('pcopy'),nb=document.getElementById('pnext'),
       cur=0,hint='Copy it, then paste it as your comment on the post.';
   function show(i){
-    cur=i;t.textContent=C[i];
+    cur=i;t.textContent=fmt(C[i]);
     t.classList.remove('swap');void t.offsetWidth;t.classList.add('swap');
   }
   nb.addEventListener('click',function(){
@@ -178,10 +278,18 @@ footer.bar small{display:block;letter-spacing:.35em;font-size:.65rem;opacity:.8;
     show(i);m.textContent=hint;
   });
   cb.addEventListener('click',function(){
-    copyText(C[cur],
+    copyText(fmt(C[cur]),
       function(){flash(cb,'Copied','Copy comment');m.textContent='Copied! Now paste it on the post.'},
       function(){m.textContent='Copy failed. Press and hold the text to copy it.'});
   });
+
+  var sel=document.getElementById('song');
+  SONGS.forEach(function(x){var o=document.createElement('option');o.value=x;o.textContent=x;if(x===song)o.selected=true;sel.appendChild(o)});
+  sel.addEventListener('change',function(){
+    song=sel.value;try{localStorage.setItem('sinta-song',song)}catch(e){}
+    show(cur);updGo();
+  });
+  show(cur);
 
   /* phone number */
   var b=document.getElementById('copy'),n=document.getElementById('num').textContent;
@@ -190,6 +298,128 @@ footer.bar small{display:block;letter-spacing:.35em;font-size:.65rem;opacity:.8;
   });
   /* stations: built from links.json (edit that file to change links; defaults below are a fallback) */
   var DEFAULT_STATIONS=[{"freq": "92.3", "name": "FMR Manila", "note": "Banana Krew (#9)", "links": [{"label": "Facebook", "url": "https://www.facebook.com/share/p/1ZVfkLuxPY/?mibextid=wwXIfr", "solid": true}, {"label": "Instagram", "url": "https://www.instagram.com/p/Dd3eBO-Clcw/?stkn=MWxjdTBvaHJ1bG85dw%3D%3D", "solid": false}]}, {"freq": "93.9", "name": "iFM Manila", "links": [{"label": "Facebook", "url": "https://www.facebook.com/share/p/1Ep72ouNSP/?mibextid=wwXIfr", "solid": true}]}, {"freq": "93.1", "name": "FMR Cebu", "links": [{"label": "Facebook", "url": "https://www.facebook.com/share/p/1DnH3DoHSR/?mibextid=wwXIfr", "solid": true}]}, {"freq": "104.7", "name": "Dream Radio", "links": [{"label": "Facebook", "url": "https://www.facebook.com/share/1Hou38pJSD/?mibextid=wwXIfr", "solid": true}]}, {"freq": "97.1", "name": "Barangay LS", "links": [{"label": "Facebook", "url": "https://www.facebook.com/story.php?story_fbid=1485191250299436&id=100064257244862", "solid": true}]}];
+  /* daily comment tracker: saved on this phone, resets each new day */
+  var pend=null,skipped=[];
+  function nextSt(){
+    var k=getDone(),L=current.slice().sort(function(a,b){return isFresh(b)-isFresh(a)}),i,st;
+    for(i=0;i<L.length;i++){st=L[i];if(k.indexOf(st.freq+'|'+st.name)<0&&skipped.indexOf(st.freq+'|'+st.name)<0)return st}
+    skipped=[];
+    for(i=0;i<L.length;i++){st=L[i];if(k.indexOf(st.freq+'|'+st.name)<0)return st}
+    return null;
+  }
+  function updGo(){
+    var st=nextSt(),g=function(i){return document.getElementById(i)};
+    if(!st){g('gn').textContent='All stations done 🎉';g('gt').textContent='';
+      ['gopen','gyes','gskip'].forEach(function(i){g(i).classList.add('hide')});return}
+    var key=st.freq+'|'+st.name,p=pend===key;
+    g('gn').textContent=(isFresh(st)?'\uD83D\uDD25 NEW: ':'')+(st.freq?st.freq+' ':'')+st.name;
+    g('gt').textContent=fmt(C[cur],st.song);
+    var sl=g('song');sl.value=st.song||song;sl.disabled=!!st.song;
+    g('sgl').textContent=st.song?'Song requested by this station':'Song to comment today (changes per station)';
+    g('gopen').classList.remove('hide');
+    g('gyes').classList.toggle('hide',!p);g('gskip').classList.toggle('hide',!p);
+  }
+  function today(){var d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()}
+  function getDone(){
+    try{var o=JSON.parse(localStorage.getItem('sinta-done')||'null');
+      if(o&&o.d===today()&&Array.isArray(o.k))return o.k}catch(e){}
+    return [];
+  }
+  function getCnt(){
+    try{var o=JSON.parse(localStorage.getItem('sinta-done')||'null');
+      if(o&&o.d===today())return Math.max(0,o.c|0)}catch(e){}
+    return 0;
+  }
+  function setDone(k,c){if(c===undefined)c=getCnt();try{localStorage.setItem('sinta-done',JSON.stringify({d:today(),k:k,c:c}))}catch(e){}}
+  function upd(){
+    document.getElementById('mine').textContent=getCnt();
+    touchStreak();var sn=streak();document.getElementById('stk').textContent=sn?'\uD83D\uDD25 '+sn+'-day streak':'';
+    updGo();
+    var total=current.length,k=getDone(),n=0;
+    current.forEach(function(st){if(k.indexOf(st.freq+'|'+st.name)>-1)n++});
+    document.getElementById('pn').textContent=n+'/'+total;
+    document.getElementById('pb').style.width=(total?n/total*100:0)+'%';
+    document.getElementById('pt').textContent=(total&&n===total)?'All done today! Now vote or request on Dream Radio.':'Posts commented on today';
+  }
+  document.getElementById('pr').addEventListener('click',function(e){e.preventDefault();setDone([],0);render(current);sync()});
+  /* shared live board (Firestore REST) */
+  var nmI=document.getElementById('nm'),lbm=document.getElementById('lbm');
+  function myName(){try{return (localStorage.getItem('sinta-name')||'').slice(0,24)}catch(e){return ''}}
+  function slug(n){return n.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')||'x'}
+  function DB(){return 'https://firestore.googleapis.com/v1/projects/'+FB.projectId+'/databases/(default)/documents'}
+  nmI.value=myName();
+  function sync(){
+    var n=myName();if(!n)return;
+    fetch(DB()+'/tally/'+today()+'_'+slug(n)+'?key='+FB.apiKey,{method:'PATCH',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({fields:{name:{stringValue:n},date:{stringValue:today()},count:{integerValue:String(getCnt())}}})})
+    .then(function(r){if(r.ok){lbm.textContent='Saved. Live board updates every few seconds.';board()}else lbm.textContent='Could not save to the shared board (check Firestore rules).'})
+    .catch(function(){lbm.textContent='Offline. Your count is saved on this phone only.'});
+  }
+  var wk=false;
+  function lastDays(n){var a=[],i,d;for(i=0;i<n;i++){d=new Date();d.setDate(d.getDate()-i);a.push(ds(d))}return a}
+  function board(){
+    var days=wk?lastDays(7):[today()],
+      flt=wk?{fieldFilter:{field:{fieldPath:'date'},op:'IN',value:{arrayValue:{values:days.map(function(x){return{stringValue:x}})}}}}
+            :{fieldFilter:{field:{fieldPath:'date'},op:'EQUAL',value:{stringValue:days[0]}}};
+    fetch(DB()+':runQuery?key='+FB.apiKey,{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({structuredQuery:{from:[{collectionId:'tally'}],where:flt}})})
+    .then(function(r){if(!r.ok)throw 0;return r.json()})
+    .then(function(a){
+      var m={};
+      a.forEach(function(x){
+        if(!x.document||!x.document.fields)return;
+        var f=x.document.fields,k=f.name.stringValue.toLowerCase();
+        if(!m[k])m[k]={n:f.name.stringValue,c:0};m[k].c+=+f.count.integerValue;
+      });
+      var rows=Object.keys(m).map(function(k){return m[k]}).filter(function(r){return r.c>0}).sort(function(a,b){return b.c-a.c});
+      var tot=rows.reduce(function(s,r){return s+r.c},0),me=myName().toLowerCase(),ol=document.getElementById('lbl');
+      document.getElementById('lbt').textContent=(wk?'This week: ':'Live today: ')+tot+' comments from '+rows.length+' Loungers';
+      ol.textContent='';
+      rows.slice(0,20).forEach(function(r,i){
+        var li=document.createElement('li'),a1=document.createElement('span'),b1=document.createElement('b');
+        if(r.n.toLowerCase()===me)li.className='me';
+        a1.textContent=(i+1)+'. '+r.n;b1.textContent=r.c;li.appendChild(a1);li.appendChild(b1);ol.appendChild(li);
+      });
+    }).catch(function(){});
+  }
+  function setWk(v){wk=v;document.getElementById('tbd').classList.toggle('solid',!v);document.getElementById('tbw').classList.toggle('solid',v);board()}
+  document.getElementById('tbd').addEventListener('click',function(){setWk(false)});
+  document.getElementById('tbw').addEventListener('click',function(){setWk(true)});
+  var shb=document.getElementById('shr');
+  shb.addEventListener('click',function(){
+    var k=getDone(),n=0;current.forEach(function(st){if(k.indexOf(st.freq+'|'+st.name)>-1)n++});
+    var msg='I commented today: '+getCnt()+' comments, '+n+'/'+current.length+' stations \uD83D\uDDA4\uD83E\uDD0D Join the Loungers!',url=location.origin+location.pathname;
+    if(navigator.share){navigator.share({text:msg,url:url}).catch(function(){})}
+    else copyText(msg+' '+url,function(){flash(shb,'Copied!','Share progress')},function(){flash(shb,'Copy failed','Share progress')});
+  });
+  function saveName(){
+    var v=nmI.value.trim().slice(0,24);if(!v)return;
+    try{localStorage.setItem('sinta-name',v)}catch(e){}
+    nmI.value=v;sync();
+  }
+  document.getElementById('nmsave').addEventListener('click',saveName);
+  function bump(d){
+    if(!myName()){lbm.textContent='Enter your name first, then tap Save.';nmI.focus();return}
+    setDone(getDone(),Math.max(0,getCnt()+d));upd();sync();
+  }
+  document.getElementById('gopen').addEventListener('click',function(){
+    if(!myName()){lbm.textContent='Enter your name first, then tap Save.';nmI.focus();nmI.scrollIntoView({block:'center'});return}
+    var st=nextSt(),u=st&&st.links&&st.links[0]&&st.links[0].url;
+    if(!u)return;
+    copyText(fmt(C[cur],st.song),function(){},function(){});
+    window.open(u,'_blank');
+    pend=st.freq+'|'+st.name;updGo();
+  });
+  document.getElementById('gyes').addEventListener('click',function(){
+    if(!pend)return;
+    var k=getDone();
+    if(k.indexOf(pend)<0){k.push(pend);setDone(k,getCnt()+1)}
+    pend=null;render(current);sync();
+  });
+  document.getElementById('gskip').addEventListener('click',function(){skipped.push(pend);pend=null;updGo()});
+  document.getElementById('plus').addEventListener('click',function(){bump(1)});
+  document.getElementById('minus').addEventListener('click',function(){bump(-1)});
+  nmI.addEventListener('keydown',function(e){if(e.key==='Enter')saveName()});
   var box=document.getElementById('stations'),current=DEFAULT_STATIONS;
   function render(list){
     current=list;box.textContent='';
@@ -202,6 +432,7 @@ footer.bar small{display:block;letter-spacing:.35em;font-size:.65rem;opacity:.8;
       var info=document.createElement('div');info.className='info';
       var h=document.createElement('h3');h.textContent=st.name;info.appendChild(h);
       if(st.note){var p=document.createElement('p');p.textContent=st.note;info.appendChild(p)}
+      if(isFresh(st)||st.song){var tg=document.createElement('p');tg.textContent=(isFresh(st)?'\uD83D\uDD25 New post  ':'')+(st.song?'\uD83C\uDFB5 '+st.song:'');tg.style.fontWeight='800';info.appendChild(tg)}
       var ls=document.createElement('div');ls.className='links';
       (st.links||[]).forEach(function(l){
         if(!/^https?:\/\//i.test(l.url))return;
@@ -209,8 +440,19 @@ footer.bar small{display:block;letter-spacing:.35em;font-size:.65rem;opacity:.8;
         a.className='btn'+(l.solid?' solid':'');a.href=l.url;a.textContent=l.label;
         ls.appendChild(a);
       });
+      var key=st.freq+'|'+st.name,cm=document.createElement('button');
+      cm.type='button';cm.className='btn cm';
+      function paint(){var on=getDone().indexOf(key)>-1;cm.classList.toggle('on',on);cm.textContent=on?'\u2713 Commented':'Mark as commented'}
+      cm.addEventListener('click',function(){
+        if(!myName()){lbm.textContent='Enter your name first, then tap Save.';nmI.focus();return}
+        var k=getDone(),i=k.indexOf(key);
+        var d=i>-1?-1:1;if(i>-1)k.splice(i,1);else k.push(key);
+        setDone(k,Math.max(0,getCnt()+d));paint();upd();sync();
+      });
+      paint();ls.appendChild(cm);
       info.appendChild(ls);art.appendChild(f);art.appendChild(info);box.appendChild(art);
     });
+    upd();
   }
   render(DEFAULT_STATIONS);
   /* ---- Firebase: fill in these two values (they are public, safe to keep in the page) ---- */
@@ -221,13 +463,14 @@ footer.bar small{display:block;letter-spacing:.35em;font-size:.65rem;opacity:.8;
     var first=(FB.apiKey&&FB.projectId)
       ? fetch('https://firestore.googleapis.com/v1/projects/'+FB.projectId+'/databases/(default)/documents/config/links?key='+FB.apiKey,{cache:'no-store'})
           .then(function(r){if(!r.ok)throw 0;return r.json()})
-          .then(function(d){return JSON.parse(d.fields.json.stringValue)})
+          .then(function(d){var f=d.fields||{};setNotice(f.notice&&f.notice.stringValue);return JSON.parse(f.json.stringValue)})
       : Promise.reject();
     first.catch(function(){
       return fetch('links.json?v='+Date.now(),{cache:'no-store'}).then(function(r){if(!r.ok)throw 0;return r.json()});
     }).then(function(d){if(Array.isArray(d)&&d.length)render(d)}).catch(function(){});
   }
   loadLinks();
+  board();setInterval(board,15000);
 
   /* ---- Admin editor: open the page with ?edit at the end of the address ---- */
   function el(tag,cls,txt){var e=document.createElement(tag);if(cls)e.className=cls;if(txt)e.textContent=txt;return e}
@@ -291,6 +534,9 @@ footer.bar small{display:block;letter-spacing:.35em;font-size:.65rem;opacity:.8;
     var rows=el('div'),msg=el('p','msg');
     ov.appendChild(el('h3','','Edit links'));
     ov.appendChild(el('p','small','Signed in as '+(user.email||'')));
+    ov.appendChild(el('label','','Announcement at the top (leave empty to hide)'));
+    var nt=el('textarea');nt.rows=3;nt.value=noticeText||'';nt.style.cssText='width:100%;font:inherit;padding:8px;box-sizing:border-box';
+    ov.appendChild(nt);
     ov.appendChild(rows);
 
     function field(row,key,label,val,mode){
@@ -304,12 +550,30 @@ footer.bar small{display:block;letter-spacing:.35em;font-size:.65rem;opacity:.8;
       (st.links||[]).forEach(function(l){
         if(l.label==='Facebook')fbk=l.url;else if(l.label==='Instagram')ig=l.url;else extra.push(l);
       });
-      r._extra=extra;
       field(r,'freq','Frequency (FM)',st.freq,'decimal');
       field(r,'name','Station name',st.name);
       field(r,'note','Note (optional)',st.note);
+      r.appendChild(el('label','','Song to request (optional)'));
+      var ss=el('select');ss.style.cssText='width:100%;min-height:44px';
+      [''].concat(SONGS).forEach(function(x){var o=el('option','',x||'(none, use default)');o.value=x;if(x===(st.song||''))o.selected=true;ss.appendChild(o)});
+      r.appendChild(ss);
+      var fl=el('label',''),ck=el('input');ck.type='checkbox';ck.dataset.k='fresh';ck.checked=isFresh(st);ck.style.width='auto';
+      fl.appendChild(ck);fl.appendChild(document.createTextNode(' New post (priority for 24 hours)'));r.appendChild(fl);r._fresh=st.fresh;
       field(r,'fb','Facebook link',fbk,'url');
       field(r,'ig','Instagram link (optional)',ig,'url');
+      var xs=el('div');r._xs=xs;
+      function addX(l){
+        var w=el('div'),a=el('input'),b=el('input'),rm=el('button','btn','Remove link');
+        a.placeholder='Label (e.g. YouTube, Twitter)';a.value=l.label||'';
+        b.placeholder='https://...';b.value=l.url||'';b.inputMode='url';
+        [a,b].forEach(function(i){i.dataset.k=i===a?'xl':'xu';i.autocapitalize='off';i.autocomplete='off';i.spellcheck=false});
+        rm.type='button';rm.addEventListener('click',function(){xs.removeChild(w)});
+        w.appendChild(a);w.appendChild(b);w.appendChild(rm);xs.appendChild(w);
+      }
+      extra.forEach(addX);
+      var ax=el('button','btn','+ Add another link');ax.type='button';
+      ax.addEventListener('click',function(){addX({})});
+      r.appendChild(xs);r.appendChild(ax);
       var bar=el('div','bar');
       [['\u2191',function(){if(r.previousElementSibling)rows.insertBefore(r,r.previousElementSibling)}],
        ['\u2193',function(){if(r.nextElementSibling)rows.insertBefore(r.nextElementSibling,r)}],
@@ -324,12 +588,19 @@ footer.bar small{display:block;letter-spacing:.35em;font-size:.65rem;opacity:.8;
     function collect(){
       var out=[],bad='';
       Array.prototype.forEach.call(rows.children,function(r){
-        var v={};Array.prototype.forEach.call(r.querySelectorAll('input'),function(i){v[i.dataset.k]=i.value.trim()});
+        var v={};Array.prototype.forEach.call(r.querySelectorAll('input'),function(i){if(i.dataset.k!=='xl'&&i.dataset.k!=='xu')v[i.dataset.k]=(i.type==='checkbox')?(i.checked?'1':''):i.value.trim()});
         var links=[];
         if(v.fb){if(!/^https?:\/\//i.test(v.fb))bad=v.name||v.freq;links.push({label:'Facebook',url:v.fb,solid:true})}
         if(v.ig){if(!/^https?:\/\//i.test(v.ig))bad=v.name||v.freq;links.push({label:'Instagram',url:v.ig,solid:!links.length})}
-        links=links.concat(r._extra||[]);
+        Array.prototype.forEach.call(r._xs.children,function(w){
+          var q=w.querySelectorAll('input'),lb=q[0].value.trim(),u=q[1].value.trim();
+          if(!u)return;
+          if(!/^https?:\/\//i.test(u))bad=v.name||v.freq;
+          links.push({label:lb||'Link',url:u});
+        });
         var st={freq:v.freq,name:v.name};if(v.note)st.note=v.note;st.links=links;
+        var sg=r.querySelector('select');if(sg&&sg.value)st.song=sg.value;
+        if(v.fresh)st.fresh=isFresh({fresh:r._fresh})?r._fresh:new Date().toISOString();
         if(v.freq||v.name)out.push(st);
       });
       return {list:out,bad:bad};
@@ -350,8 +621,8 @@ footer.bar small{display:block;letter-spacing:.35em;font-size:.65rem;opacity:.8;
       if(c.bad){msg.textContent='Links must start with https:// ('+c.bad+').';return}
       if(!c.list.length){msg.textContent='Add at least one station.';return}
       msg.textContent='Saving...';save.disabled=true;
-      fb.firestore().doc('config/links').set({json:JSON.stringify(c.list),updatedAt:new Date().toISOString()})
-        .then(function(){render(c.list);msg.textContent='Saved! Live for everyone now.'})
+      fb.firestore().doc('config/links').set({json:JSON.stringify(c.list),notice:nt.value.trim(),updatedAt:new Date().toISOString()})
+        .then(function(){render(c.list);setNotice(nt.value.trim());msg.textContent='Saved! Live for everyone now.'})
         .catch(function(e){msg.textContent=(e&&e.code==='permission-denied')?'This account is not allowed to edit.':'Save failed. Try again.'})
         .then(function(){save.disabled=false});
     });
