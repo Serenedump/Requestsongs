@@ -207,9 +207,9 @@ footer.bar small{display:block;letter-spacing:.35em;font-size:.65rem;opacity:.8;
 
   <div class="lb">
     <div class="nm"><input id="nm" maxlength="24" placeholder="Your name" autocomplete="nickname"><button class="btn solid" id="nmsave" type="button">Save</button></div>
-    <div class="cnt"><div><small>Your comments today (any Will Ashley post)</small><b id="mine">0</b></div><button class="btn" id="minus" type="button">&minus;1</button><button class="btn solid" id="plus" type="button">+1 Comment</button></div>
+    <div class="cnt"><div><small>Stations you finished today</small><b id="mine">0</b></div></div>
     <div class="nm"><button class="btn solid" id="tbd" type="button">Today</button><button class="btn" id="tbw" type="button">This week</button></div>
-    <h3 id="lbt">Live comments today</h3>
+    <h3 id="lbt">Live stations done today</h3>
     <ol id="lbl"></ol>
     <p class="small" id="lbm">Names and counts are self-reported and update about every minute.</p>
   </div>
@@ -351,15 +351,17 @@ footer.bar small{display:block;letter-spacing:.35em;font-size:.65rem;opacity:.8;
     g('gyes').classList.toggle('hide',!p);g('gskip').classList.toggle('hide',!p);
   }
   function today(){var d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()}
-  function getDone(){
+  function readDone(){
     try{var o=JSON.parse(localStorage.getItem('sinta-done')||'null');
-      if(o&&o.d===today()&&Array.isArray(o.k))return o.k}catch(e){}
-    return [];
+      if(o&&o.d===today()&&Array.isArray(o.k))return o}catch(e){}
+    return null;
   }
+  function getDone(){var o=readDone();return o?o.k:[]}
+  /* the score is the number of stations finished today */
   function getCnt(){
-    try{var o=JSON.parse(localStorage.getItem('sinta-done')||'null');
-      if(o&&o.d===today())return Math.max(0,o.c|0)}catch(e){}
-    return 0;
+    var k=getDone();
+    if(typeof current==='undefined'||!current)return k.length;
+    return current.filter(function(st){return k.indexOf(st.freq+'|'+st.name)>-1}).length;
   }
   /* remembers which stations had a link tapped today, so "Mark as commented" stays locked until then */
   var openMem={d:'',k:[]};
@@ -374,7 +376,7 @@ footer.bar small{display:block;letter-spacing:.35em;font-size:.65rem;opacity:.8;
     try{localStorage.setItem('sinta-opened',JSON.stringify(openMem))}catch(e){}
   }
   function clearOpen(){openMem={d:'',k:[]};try{localStorage.removeItem('sinta-opened')}catch(e){}}
-  function setDone(k,c){if(c===undefined)c=getCnt();try{localStorage.setItem('sinta-done',JSON.stringify({d:today(),k:k,c:c}))}catch(e){}}
+  function setDone(k){try{localStorage.setItem('sinta-done',JSON.stringify({d:today(),k:k}))}catch(e){}}
   function upd(){
     document.getElementById('mine').textContent=getCnt();
     touchStreak();var sn=streak();document.getElementById('stk').textContent=sn?'\uD83D\uDD25 '+sn+'-day streak':'';
@@ -385,7 +387,7 @@ footer.bar small{display:block;letter-spacing:.35em;font-size:.65rem;opacity:.8;
     document.getElementById('pb').style.width=(total?n/total*100:0)+'%';
     document.getElementById('pt').textContent=(total&&n===total)?'All done today! Now vote or request on Dream Radio.':'Posts commented on today';
   }
-  document.getElementById('pr').addEventListener('click',function(e){e.preventDefault();setDone([],0);clearOpen();render(current);sync()});
+  document.getElementById('pr').addEventListener('click',function(e){e.preventDefault();setDone([]);clearOpen();render(current);sync()});
   /* shared live board (Firestore REST) */
   var nmI=document.getElementById('nm'),lbm=document.getElementById('lbm');
   function myName(){try{return (localStorage.getItem('sinta-name')||'').slice(0,24)}catch(e){return ''}}
@@ -417,7 +419,7 @@ footer.bar small{display:block;letter-spacing:.35em;font-size:.65rem;opacity:.8;
       });
       var rows=Object.keys(m).map(function(k){return m[k]}).filter(function(r){return r.c>0}).sort(function(a,b){return b.c-a.c});
       var tot=rows.reduce(function(s,r){return s+r.c},0),me=myName().toLowerCase(),ol=document.getElementById('lbl');
-      document.getElementById('lbt').textContent=(wk?'This week: ':'Live today: ')+tot+' comments from '+rows.length+' Loungers';
+      document.getElementById('lbt').textContent=(wk?'This week: ':'Live today: ')+tot+' stations done by '+rows.length+' Loungers';
       ol.textContent='';
       rows.slice(0,20).forEach(function(r,i){
         var li=document.createElement('li'),a1=document.createElement('span'),b1=document.createElement('b');
@@ -481,7 +483,7 @@ footer.bar small{display:block;letter-spacing:.35em;font-size:.65rem;opacity:.8;
     x.beginPath();x.arc(cx,cy,R,0,Math.PI*2);x.stroke();
     if(n>0&&tot){x.strokeStyle=T.fg;x.beginPath();x.arc(cx,cy,R,-Math.PI/2,-Math.PI/2+Math.PI*2*Math.min(1,n/tot)-(n>=tot?0.0001:0));x.stroke()}
     x.fillStyle=T.fg;x.font='bold 300px '+serif;x.fillText(String(cnt),cx,cy+100,440);
-    x.fillStyle=T.mu;x.font=F(40)+'px '+sans;x.fillText('comments today',cx,cy+175,440);
+    x.fillStyle=T.mu;x.font=F(40)+'px '+sans;x.fillText('stations done',cx,cy+175,440);
     if(tot<=12){
       x.lineWidth=3;x.strokeStyle=T.fg;x.fillStyle=T.fg;
       for(i=0;i<tot;i++){
@@ -598,10 +600,6 @@ footer.bar small{display:block;letter-spacing:.35em;font-size:.65rem;opacity:.8;
     nmI.value=v;sync();
   }
   document.getElementById('nmsave').addEventListener('click',saveName);
-  function bump(d){
-    if(!myName()){lbm.textContent='Enter your name first, then tap Save.';nmI.focus();return}
-    setDone(getDone(),Math.max(0,getCnt()+d));upd();sync();
-  }
   document.getElementById('gopen').addEventListener('click',function(){
     if(!myName()){lbm.textContent='Enter your name first, then tap Save.';nmI.focus();nmI.scrollIntoView({block:'center'});return}
     var st=nextSt(),u=st&&st.links&&st.links[0]&&st.links[0].url;
@@ -613,12 +611,10 @@ footer.bar small{display:block;letter-spacing:.35em;font-size:.65rem;opacity:.8;
   document.getElementById('gyes').addEventListener('click',function(){
     if(!pend)return;
     var k=getDone();
-    if(k.indexOf(pend)<0){k.push(pend);setDone(k,getCnt()+1)}
+    if(k.indexOf(pend)<0){k.push(pend);setDone(k)}
     pend=null;render(current);sync();
   });
   document.getElementById('gskip').addEventListener('click',function(){skipped.push(pend);pend=null;updGo()});
-  document.getElementById('plus').addEventListener('click',function(){bump(1)});
-  document.getElementById('minus').addEventListener('click',function(){bump(-1)});
   nmI.addEventListener('keydown',function(e){if(e.key==='Enter')saveName()});
   var box=document.getElementById('stations'),current=DEFAULT_STATIONS;
   function render(list){
@@ -646,13 +642,13 @@ footer.bar small{display:block;letter-spacing:.35em;font-size:.65rem;opacity:.8;
       function paint(){
         var on=getDone().indexOf(key)>-1,op=getOpen().indexOf(key)>-1;
         cm.classList.toggle('on',on);cm.disabled=!on&&!op;
-        cm.textContent=on?'\u2713 Commented':(op?'Mark as commented':'Open the post first')
+        cm.textContent=on?'\u2713 Commented':(op?'Mark as commented':'Open the post first');
       }
       cm.addEventListener('click',function(){
         if(!myName()){lbm.textContent='Enter your name first, then tap Save.';nmI.focus();return}
         var k=getDone(),i=k.indexOf(key);
-        var d=i>-1?-1:1;if(i>-1)k.splice(i,1);else k.push(key);
-        setDone(k,Math.max(0,getCnt()+d));paint();upd();sync();
+        if(i>-1)k.splice(i,1);else k.push(key);
+        setDone(k);paint();upd();sync();
       });
       paint();ls.appendChild(cm);
       info.appendChild(ls);art.appendChild(f);art.appendChild(info);box.appendChild(art);
@@ -822,6 +818,34 @@ footer.bar small{display:block;letter-spacing:.35em;font-size:.65rem;opacity:.8;
     bar1.appendChild(add);bar1.appendChild(save);
     bar2.appendChild(out);bar2.appendChild(closeBtn(ov));
     ov.appendChild(msg);ov.appendChild(bar1);ov.appendChild(bar2);
+
+    /* admin: fix or remove today's leaderboard entries */
+    var adm=el('div'),al=el('div'),am=el('p','msg');
+    adm.appendChild(el('h3','','Leaderboard today'));adm.appendChild(al);adm.appendChild(am);ov.appendChild(adm);
+    function admErr(e){am.textContent=(e&&e.code==='permission-denied')?'Not allowed. In Firestore rules, let the admin update and delete documents in tally.':'Failed. Try again.'}
+    function loadAdm(){
+      al.textContent='Loading...';
+      fb.firestore().collection('tally').where('date','==',today()).get().then(function(sn){
+        var arr=[];sn.forEach(function(d){var v=d.data();arr.push({id:d.id,n:v.name,c:+v.count||0})});
+        arr.sort(function(a,b){return b.c-a.c});
+        al.textContent=arr.length?'':'No entries today.';
+        arr.forEach(function(r){
+          var row=el('div','row'),inp=el('input'),b=el('div','bar'),sv=el('button','btn','Save count'),rm=el('button','btn','Remove');
+          row.appendChild(el('label','',r.n));inp.type='number';inp.min='0';inp.value=r.c;inp.inputMode='numeric';row.appendChild(inp);
+          sv.type='button';rm.type='button';
+          sv.addEventListener('click',function(){
+            var v=Math.max(0,parseInt(inp.value,10)||0);
+            fb.firestore().doc('tally/'+r.id).update({count:v}).then(function(){am.textContent=r.n+' set to '+v+'.';loadAdm();board()}).catch(admErr);
+          });
+          rm.addEventListener('click',function(){
+            if(!confirm('Remove '+r.n+' from today?'))return;
+            fb.firestore().doc('tally/'+r.id).delete().then(function(){am.textContent=r.n+' removed.';loadAdm();board()}).catch(admErr);
+          });
+          b.appendChild(sv);b.appendChild(rm);row.appendChild(b);al.appendChild(row);
+        });
+      }).catch(function(e){al.textContent='';admErr(e)});
+    }
+    loadAdm();
 
     save.addEventListener('click',function(){
       var c=collect();
