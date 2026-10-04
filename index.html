@@ -106,6 +106,7 @@ footer.bar small{display:block;letter-spacing:.35em;font-size:.65rem;opacity:.8;
 .prog i{display:block;height:6px;background:#ddd;margin-top:6px}
 .prog i u{display:block;height:100%;width:0;background:#000;transition:width .25s}
 .btn.cm{grid-column:1/-1}
+.btn:disabled{opacity:.4;cursor:not-allowed;pointer-events:none}
 .btn.cm.on{background:#000;color:#fff}
 .lb{background:var(--card);border:1px solid #000;padding:12px 14px;margin:0 0 16px}
 .lb .nm{display:flex;gap:8px;margin-bottom:10px}
@@ -359,6 +360,19 @@ footer.bar small{display:block;letter-spacing:.35em;font-size:.65rem;opacity:.8;
       if(o&&o.d===today())return Math.max(0,o.c|0)}catch(e){}
     return 0;
   }
+  /* remembers which stations had a link tapped today, so "Mark as commented" stays locked until then */
+  var openMem={d:'',k:[]};
+  function getOpen(){
+    try{var o=JSON.parse(localStorage.getItem('sinta-opened')||'null');
+      if(o&&o.d===today()&&Array.isArray(o.k))return o.k}catch(e){}
+    return openMem.d===today()?openMem.k:[];
+  }
+  function addOpen(key){
+    var k=getOpen().slice();if(k.indexOf(key)<0)k.push(key);
+    openMem={d:today(),k:k};
+    try{localStorage.setItem('sinta-opened',JSON.stringify(openMem))}catch(e){}
+  }
+  function clearOpen(){openMem={d:'',k:[]};try{localStorage.removeItem('sinta-opened')}catch(e){}}
   function setDone(k,c){if(c===undefined)c=getCnt();try{localStorage.setItem('sinta-done',JSON.stringify({d:today(),k:k,c:c}))}catch(e){}}
   function upd(){
     document.getElementById('mine').textContent=getCnt();
@@ -370,7 +384,7 @@ footer.bar small{display:block;letter-spacing:.35em;font-size:.65rem;opacity:.8;
     document.getElementById('pb').style.width=(total?n/total*100:0)+'%';
     document.getElementById('pt').textContent=(total&&n===total)?'All done today! Now vote or request on Dream Radio.':'Posts commented on today';
   }
-  document.getElementById('pr').addEventListener('click',function(e){e.preventDefault();setDone([],0);render(current);sync()});
+  document.getElementById('pr').addEventListener('click',function(e){e.preventDefault();setDone([],0);clearOpen();render(current);sync()});
   /* shared live board (Firestore REST) */
   var nmI=document.getElementById('nm'),lbm=document.getElementById('lbm');
   function myName(){try{return (localStorage.getItem('sinta-name')||'').slice(0,24)}catch(e){return ''}}
@@ -593,7 +607,7 @@ footer.bar small{display:block;letter-spacing:.35em;font-size:.65rem;opacity:.8;
     if(!u)return;
     copyText(fmt(C[cur],st.song),function(){},function(){});
     window.open(u,'_blank');
-    pend=st.freq+'|'+st.name;updGo();
+    pend=st.freq+'|'+st.name;addOpen(pend);render(current);
   });
   document.getElementById('gyes').addEventListener('click',function(){
     if(!pend)return;
@@ -619,15 +633,20 @@ footer.bar small{display:block;letter-spacing:.35em;font-size:.65rem;opacity:.8;
       if(st.note){var p=document.createElement('p');p.textContent=st.note;info.appendChild(p)}
       if(isFresh(st)||st.song){var tg=document.createElement('p');tg.textContent=(isFresh(st)?'\uD83D\uDD25 New post  ':'')+(st.song?'\uD83C\uDFB5 '+st.song:'');tg.style.fontWeight='800';info.appendChild(tg)}
       var ls=document.createElement('div');ls.className='links';
+      var key=st.freq+'|'+st.name,cm=document.createElement('button');
       (st.links||[]).forEach(function(l){
         if(!/^https?:\/\//i.test(l.url))return;
         var a=document.createElement('a');
         a.className='btn'+(l.solid?' solid':'');a.href=l.url;a.textContent=l.label;
+        a.addEventListener('click',function(){addOpen(key);paint()});
         ls.appendChild(a);
       });
-      var key=st.freq+'|'+st.name,cm=document.createElement('button');
       cm.type='button';cm.className='btn cm';
-      function paint(){var on=getDone().indexOf(key)>-1;cm.classList.toggle('on',on);cm.textContent=on?'\u2713 Commented':'Mark as commented'}
+      function paint(){
+        var on=getDone().indexOf(key)>-1,op=getOpen().indexOf(key)>-1;
+        cm.classList.toggle('on',on);cm.disabled=!on&&!op;
+        cm.textContent=on?'\u2713 Commented':(op?'Mark as commented':'Open the post first')
+      }
       cm.addEventListener('click',function(){
         if(!myName()){lbm.textContent='Enter your name first, then tap Save.';nmI.focus();return}
         var k=getDone(),i=k.indexOf(key);
